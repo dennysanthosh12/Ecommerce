@@ -1,0 +1,132 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce</title>
+    <link rel="stylesheet" href="{% static '/css/style2.css' %}">
+    <script src="{% static '/js/script1.js' %}"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="heading">E-Commerce Tracker</div>
+        {% if user.is_authenticated %}
+            
+            <div class="login-button">
+                <a class="login" href="{% url 'login' %}" >LOGOUT</a>
+            </div>
+            
+    </header>
+    <section class="main_container">
+        <div class="container1">
+            <div class="inner_container">
+                <form id="searchForm" method="post" action="{% url 'results' %}">
+                    {% csrf_token %}
+                <div class="input_container">
+                    
+                        <div>
+                            
+                                <input type="text" name="product_name" placeholder="Enter product name" class="Input_field" required>
+                                <button type="submit" class="submit_button">Search</button>
+                            
+                        </div>
+                        <div class="filter-buttons">
+                            <div>
+                            <input type="button" style="padding:2px; border-radius:3px; border:none; " value="Filter" id="filterButton">
+                            </div>
+                            <div class="filter_options">
+                                <input type="radio" id="high_low" name="filter" value="high_low" >
+                                <label for="high_low">Price High to Low</label>
+                                <input type="radio" id="low_high" name="filter" value="low_high" >
+                                <label for="low_high">Price Low to High</label>
+                            </div>
+                        </div>
+                    
+                </div>
+            </form>
+                <div id="loader" class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                <div id="user-icon" class="user-icon" data-username="{{ user.username }}" data-email="{{ user.email }}" data-firstname="{{ user.first_name }}" data-lastname="{{ user.last_name }}">
+                    <span style="color: black; float: right; font-weight: bold;" >Welcome, {{ username }}!</span>
+                    <img src="{% static 'images/user-icon.png' %}" alt="User Icon" class="icon-image">
+                </div>
+                
+            </div>
+            {% block search_product %} {% endblock search_product %}
+            <div class="product_container">
+                <div class="amazon_product_container">
+
+                    {% block amazon_product_result %} {% endblock amazon_product_result %}
+                </div>
+                <div class="flipkart_product_container">
+                    
+                    {% block flipkart_product_result %} {% endblock flipkart_product_result %}
+                </div>
+            </div>    
+
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="footer_text">
+            ©2024 Denny Santhosh. All Rights Reserved
+        </div>
+    </footer>
+    {% endif %}
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            document.getElementById('loader').style.display = 'block';
+            this.submit();
+        });
+    </script>
+    <script>
+        document.getElementById("filterButton").addEventListener("click", function() {
+            var filterOptions = document.querySelector(".filter_options");
+            if (filterOptions.classList.contains("horizontal")) {
+                filterOptions.classList.remove("horizontal");
+            } else {
+                filterOptions.classList.add("horizontal");
+            }
+        });
+        
+    </script>
+
+    <script>
+        function searchProducts() {
+            // Get input value and convert to lowercase
+            var input, filter, products, product, i, txtValue;
+            input = document.getElementById('searchInput');
+            filter = input.value.toLowerCase();
+    
+            // Search in Amazon product list
+            products = document.querySelectorAll('.amazon_product_container .product');
+            for (i = 0; i < products.length; i++) {
+                product = products[i];
+                txtValue = product.textContent || product.innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    product.style.display = "";
+                } else {
+                    product.style.display = "none";
+                }
+            }
+    
+            // Search in Flipkart product list
+            products = document.querySelectorAll('.flipkart_product_container .product');
+            for (i = 0; i < products.length; i++) {
+                product = products[i];
+                txtValue = product.textContent || product.innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    product.style.display = "";
+                } else {
+                    product.style.display = "none";
+                }
+            }
+        }
+    </script>
+    
+    
+</body>
+</html>

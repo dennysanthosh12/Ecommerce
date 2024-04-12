@@ -1,0 +1,57 @@
+
+{% extends "home.html" %}
+{% load static %}
+
+{% block search_product %} 
+<div class="search-container">
+    <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="Search for products...">
+</div>
+{% endblock search_product %}
+
+{% block amazon_product_result %}
+    {% if results_amazon %}
+        <div class="amazon_title text-center">
+            <img src="{% static 'images/amazon_logo.png' %}" alt="Amazon Logo" class="center-image">
+        </div>
+        <div class="product-list">
+            {% for product in results_amazon %}
+                    <div class="product">
+                        <a  href="{% url 'product' %}?{% for key, value in product.items %}{{ key }}={{ value }}&{% endfor %}">
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="image_class">
+                        <p>{{ product.name }}</p>
+                        <p>Price: ₹{{ product.price }}</p>
+                        <p>Rating: {{ product.rating }}</p>
+                        </a>
+                    </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if results_amazon is empty and request.method == "POST" %}
+        <p>No products found.</p>
+    {% endif %}
+
+{% endblock amazon_product_result %}
+
+{% block flipkart_product_result %}
+    {% if results_flipkart %}
+        <div class="flipkart_title text-center">
+            <img src="{% static 'images/flipkart_logo.jpg' %}" alt="Flipkart Logo" class="center-image">
+        </div>
+        <div class="product-list">
+            {% for product in results_flipkart %}
+                    <div class="product">
+                        <a href="{% url 'product' %}?{% for key, value in product.items %}{{ key }}={{ value }}&{% endfor %}">
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="image_class">
+                        <p>{{ product.name }}</p>
+                        <p>Price: ₹{{ product.price }}</p>
+                        <p>Rating: {{ product.rating }}</p>
+                        </a>
+                    </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if results_flipkart is empty and request.method == "POST" %}
+        <p>No products found.</p>
+    {% endif %}
+
+{% endblock flipkart_product_result %}

@@ -1,0 +1,136 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce</title>
+    <link rel="stylesheet" href="{% static '/css/style3.css' %}">
+    <script src="{% static '/js/script1.js' %}"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="heading">E-Commerce Tracker</div>
+        {% if user.is_authenticated %}
+            
+            <div class="login-button">
+                <a class="login" href="{% url 'login' %}" >LOGOUT</a>
+            </div>
+            
+    </header>
+    <section class="main_container">
+        <div class="container1">
+            <div class="inner_container">
+                <form id="searchForm" method="post" action="{% url 'results' %}">
+                    {% csrf_token %}
+                <div class="input_container">
+                    
+                        <div>
+                            
+                                <input type="text" name="product_name" placeholder="Enter product name" class="Input_field" required>
+                                <button type="submit" class="submit_button">Search</button>
+                            
+                        </div>
+                        <div class="filter-buttons">
+                            <div>
+                            <input type="button" style="padding:2px; border-radius:3px; border:none; " value="Filter" id="filterButton">
+                            </div>
+                            <div class="filter_options">
+                                <input type="radio" id="high_low" name="filter" value="high_low" >
+                                <label for="high_low">Price High to Low</label>
+                                <input type="radio" id="low_high" name="filter" value="low_high" >
+                                <label for="low_high">Price Low to High</label>
+                            </div>
+                        </div>
+                    
+                </div>
+            </form>
+                <div id="loader" class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                <div id="user-icon" class="user-icon" data-username="{{ user.username }}" data-email="{{ user.email }}" data-firstname="{{ user.first_name }}" data-lastname="{{ user.last_name }}">
+                    <span style="color: black; float: right; font-weight: bold;" >Welcome, {{ user.username }}!</span>
+                    <img src="{% static 'images/user-icon.png' %}" alt="User Icon" class="icon-image">
+                </div>
+                
+            </div>
+            <div class="product_container">
+                {% if product %}
+                <div class="product_details">
+                    <div class="product_image">
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="P-image">
+
+                    </div>
+
+                    <div class="product_info">
+                        
+                            <div class="product_name flex-item">
+
+                                <span><a href="{{ product.link }}" class="a_name">{{ product.name}}</a></span>
+                            </div>
+                            <div class="product_price flex-item">
+                                <span>₹ {{ product.price}}</span>
+                            </div>
+                            <div class="product_rating flex-item">
+                                <span>Rating: {{ product.rating}}</span>
+                            </div>
+                        
+                    </div>
+
+
+                </div>    
+                {% endif %}
+                <div class="target_container">
+                    <span>Add Product Tracking</span>
+                    <form  method="post" action="{% url 'Tracking' %}?{% for key, value in product.items %}{{ key }}={{ value }}&{% endfor %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_name" value="{{ product.name }}">
+                        <input type="hidden" name="product_price" value="{{ product.price }}">
+                        <input type="hidden" name="product_url" value="{{ product.link }}">
+                        <input type="hidden" name="user_email" value="{{ user.email }}">
+                        <input type="number" name="expected_price" placeholder="Enter Expected Price" class="input_field2" required>
+                        <button type="submit" class="submit_button">Tack</button>
+                    </form>
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                            <br>
+                            <div class="message">{{ message }}</div>
+                            {% endfor %}
+                        </div>  
+                    {% endif %}
+                </div>
+
+            </div>    
+
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="footer_text">
+            ©2024 Denny Santhosh. All Rights Reserved
+        </div>
+    </footer>
+    {% endif %}
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            document.getElementById('loader').style.display = 'block';
+            this.submit();
+        });
+    </script>
+    <script>
+        document.getElementById("filterButton").addEventListener("click", function() {
+            var filterOptions = document.querySelector(".filter_options");
+            if (filterOptions.classList.contains("horizontal")) {
+                filterOptions.classList.remove("horizontal");
+            } else {
+                filterOptions.classList.add("horizontal");
+            }
+        });
+        
+    </script>
+
+
+    
+</body>
+</html>

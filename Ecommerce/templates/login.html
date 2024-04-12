@@ -1,0 +1,31 @@
+
+{% extends "base.html" %}
+
+{% block form %}
+
+  <form method="post" action="">
+    {% csrf_token %}
+    <div class="d-flex  flex-column">
+      {% if messages %}
+        <div class="alert alert-danger">
+          <ul class="messages">
+          {% for message in messages %}
+          <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          {% endfor %}
+        </ul>
+        </div>
+      {% endif %}
+    <div class="form-group">
+      <label for="{{ form.username.id_for_label }}" style="color:white; font-size:22px;">Username:</label>
+      <input type="{{ form.username.field.widget.input_type }}" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.password.id_for_label }}" style="color:white; font-size:22px;">Password:</label>
+      <input type="{{ form.password.field.widget.input_type }}" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+  </div>
+  </form>
+{% endblock form %}
