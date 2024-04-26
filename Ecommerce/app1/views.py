@@ -75,8 +75,12 @@ def home(request):
 def result(request):
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
-        results_amazon = scrape_amazon(product_name)
-        results_flipkart = scrape_flipkart(product_name)
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        driver = webdriver.Chrome(options=chrome_options)
+        results_amazon = scrape_amazon(product_name,driver)
+        results_flipkart = scrape_flipkart(product_name,driver)
+        driver.quit()
 
         sort_by = request.POST.get('filter')
         if sort_by == 'low_high':
@@ -92,12 +96,8 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-def scrape_amazon(product):
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get("https://www.amazon.in/?&tag=googhydrabk1-21&ref=pd_sl_7hz2t19t5c_e&adgrpid=155259815513&hvpone=&hvptwo=&hvadid=676742245123&hvpos=&hvnetw=g&hvrand=4223997358889443877&hvqmt=e&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9180587&hvtargid=kwd-10573980&hydadcr=14453_2367553")
-
+def scrape_amazon(product,driver):
+    driver.get("https://www.amazon.in/")
     input_field = driver.find_element(By.ID, "twotabsearchtextbox")
     search_button = driver.find_element(By.ID, "nav-search-submit-button")
 
@@ -109,14 +109,17 @@ def scrape_amazon(product):
     products = []
     for i in range(2):
     # Extracting multiple elements using find_elements
-        product_name_clases,product_image_classes = [".a-size-base-plus.a-color-base.a-text-normal",".a-size-medium.a-color-base.a-text-normal"],[".a-section.aok-relative.s-image-square-aspect",".a-section.aok-relative.s-image-fixed-height"]
+        product_name_clases,product_image_classes = [".a-size-base-plus.a-color-base.a-text-normal",".a-size-medium.a-color-base.a-text-normal"],[".a-section.aok-relative.s-image-square-aspect",".a-section.aok-relative.s-image-fixed-height",".a-section.aok-relative.s-image-tall-aspect"]
         product_names = []
         image_outer_divs = []
-        for classes1,classes2 in zip(product_name_clases,product_image_classes):
+        for classes1 in product_name_clases:
             element1 = driver.find_elements(By.CSS_SELECTOR, classes1)
-            element2 = driver.find_elements(By.CSS_SELECTOR,classes2)
-            product_names.extend(element1)
-            image_outer_divs.extend(element2)
+            if element1:
+                product_names.extend(element1)
+        for classes2 in product_image_classes:
+            element2 = driver.find_elements(By.CSS_SELECTOR, classes2)
+            if element2:
+                image_outer_divs.extend(element2)
         product_link = driver.find_elements(By.CSS_SELECTOR,".a-link-normal.s-no-hover.s-underline-text.s-underline-link-text.s-link-style.a-text-normal")
         product_prices = driver.find_elements(By.CLASS_NAME, "a-price-whole")
         ratings_elements = driver.find_elements(By.CSS_SELECTOR, ".a-icon-alt")
@@ -141,13 +144,9 @@ def scrape_amazon(product):
         next_button.click()
         driver.implicitly_wait(2)
 
-    driver.quit()
     return products
 
-def scrape_flipkart(product):
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    driver = webdriver.Chrome(options=chrome_options)
+def scrape_flipkart(product,driver):
     driver.get("https://www.flipkart.com/")
 
     input_field = driver.find_element(By.CLASS_NAME, "Pke_EE")
@@ -162,21 +161,35 @@ def scrape_flipkart(product):
 
     for i in range(2):
     # Extracting multiple elements using find_elements
-        product_name_classes,product_link_classes,product_price_classes = ["_4rR01T", "s1Q9rs"],["_1fQZEK","_8VNy32"],["._30jeq3","._30jeq3._1_WHN1"]
+        product_name_classes,product_link_classes,product_price_classes,product_image_classes = [".KzDlHZ",".wjcEIp",".WKTcLC"],[".wjcEIp",".CGtC98",".WKTcLC"],[".Nx9bqj._4b5DiR","._30jeq3._1_WHN1",".Nx9bqj"],["._53J4C-",".DByuf4","#no0123"]
         product_names = []
         product_link = []
         product_prices = []
-        for class_name1,class_name2,class_name3 in zip(product_name_classes,product_link_classes,product_price_classes):
-            elements1 = driver.find_elements(By.CLASS_NAME, class_name1)
-            elements2 = driver.find_elements(By.CLASS_NAME,class_name2)
-            elements3 = driver.find_elements(By.CSS_SELECTOR, class_name3)
-            product_names.extend(elements1)
-            product_link.extend(elements2)
-            product_prices.extend(elements3)
+        image_outer_divs = []
+        for classes in product_name_classes:
+            element = driver.find_elements(By.CSS_SELECTOR,classes)
+            if element:
+                product_names.extend(element)
+        for classes in product_link_classes:
+            element = driver.find_elements(By.CSS_SELECTOR,classes)
+            if element:
+                product_link.extend(element)
+        for classes in product_price_classes:
+            element = driver.find_elements(By.CSS_SELECTOR,classes)
+            if element:
+                product_prices.extend(element)
+        for classes in product_image_classes:
+            element = driver.find_elements(By.CSS_SELECTOR,classes)
+            if element:
+                image_outer_divs.extend(element)
+            
+            
+            
+            
   
-        ratings_elements = driver.find_elements(By.CLASS_NAME, "_3LWZlK")
+        ratings_elements = driver.find_elements(By.CLASS_NAME, "XQDdHH")
         
-        image_outer_divs = driver.find_elements(By.CLASS_NAME,"_396cs4")
+        
         # Creating a list of dictionaries
         
 
@@ -201,7 +214,6 @@ def scrape_flipkart(product):
         driver.get("flipkart.com"+next_link)
         driver.implicitly_wait(2)
     
-    driver.quit()
     return products
 
 @login_required  
@@ -211,17 +223,18 @@ def product(request):
 
     return render(request, 'home_product.html', {'product': product})
 
-@login_required
+@login_required  
 def Tracking(request):
     if request.method == 'POST':
-        product = request.GET.dict()
-        product_name = request.POST.get('product_name')
-        product_price = request.POST.get('product_price')
-        product_url = request.POST.get('product_url')
-        expected_price = request.POST.get('expected_price')
-        email = request.POST.get('user_email')
-        product_price = float(product_price)
         try:
+            product = request.GET.dict()
+            product_name = request.POST.get('product_name')
+            product_price = request.POST.get('product_price')
+            product_url = request.POST.get('product_url')
+            expected_price = request.POST.get('expected_price')
+            email = request.POST.get('user_email')
+            product_price = float(product_price)
+            
             existing_product = Product.objects.filter(product_url=product_url).first()
             if existing_product:
                 existing_product.current_price = product_price
@@ -238,15 +251,19 @@ def Tracking(request):
                     user=request.user
                 )
                 messages.success(request, 'Product added to tracking successfully!')
-                  # Add the product ID to the dictionary
-        except Exception as e:
-            messages.error(request, f'Error occurred while adding product: {str(e)}')
 
-        # Serialize the product dictionary into a query string
-        product_query_string = urlencode(product)
-        
-        # Redirect the user to the home page with the product query string
-        return redirect(reverse('product') + '?' + product_query_string)
+            # Serialize the product dictionary into a query string
+            product_query_string = urlencode(product)
+            
+            # Redirect the user to the home page with the product query string
+            return redirect(reverse('product') + '?' + product_query_string)
+
+        except Exception as e:
+            messages.error(request, f'Error occurred while adding/updating product: {str(e)}')
+
+        # If any errors occur during the process, return a redirect to the product page
+        return redirect('product')
+    
     else:
-        # If the request method is not POST, return a redirect to the home page
+        # If the request method is not POST, return a redirect to the product page
         return redirect('product')

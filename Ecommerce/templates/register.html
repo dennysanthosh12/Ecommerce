@@ -26,7 +26,7 @@
       <input type="{{ form.email.field.widget.input_type }}" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control" required>
     </div>
 
-    <div class="row">
+    <div class="row form-group">
       <div class="col-md-6">
         <label for="{{ form.first_name.id_for_label }}" style="color: white;">First Name:</label>
         <input type="{{ form.first_name.field.widget.input_type }}" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control" required>
@@ -36,7 +36,7 @@
         <input type="{{ form.last_name.field.widget.input_type }}" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control" required>
       </div>
     </div>
-    <div class="row ">
+    <div class="row form-group">
         <div class="col-md-6">
         <label for="{{ form.password1.id_for_label }}" style="color: white;">Password:</label>
         <input type="{{ form.password1.field.widget.input_type }}" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-control" required>
@@ -47,7 +47,7 @@
         <input type="{{ form.password2.field.widget.input_type }}" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-control" required>
         </div>
     </div>
-    <div class="d-flex justify-content-center">
+    <div class="d-flex form-group justify-content-center">
         <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Register</button>
     </div>
   </form>
